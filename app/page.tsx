@@ -1,3 +1,4 @@
+import Link from "next/link";
 export default function Home() {
   return (
     <main className="bg-black text-white">
@@ -31,9 +32,17 @@ export default function Home() {
           Moderne Haarschnitte, perfekte Fades und professionelles Styling.
         </p>
 
-        <button className="bg-white text-black px-8 py-4 rounded-2xl text-lg font-semibold hover:bg-gray-200 transition">
-          Termin buchen
-        </button>
+        import Link from "next/link";
+
+<Link href="/booking">
+
+  <button className="bg-white text-black px-8 py-4 rounded-2xl text-lg font-semibold hover:bg-gray-200 transition cursor-pointer">
+
+    Termin buchen
+
+  </button>
+
+</Link>
 
       </section>
 

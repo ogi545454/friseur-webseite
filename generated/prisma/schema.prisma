@@ -1,0 +1,25 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Appointment {
+  id Int @id @default(autoincrement())
+
+  customerName  String
+  customerPhone String
+  customerEmail String
+
+  employee String
+  service  String
+
+  date String
+  time String
+
+  createdAt DateTime @default(now())
+}

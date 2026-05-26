@@ -1,21 +1,43 @@
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-// DELETE
 export async function DELETE(
   req: Request,
-  context: any
+  { params }: {
+    params: {
+      id: string;
+    };
+  }
 ) {
 
-  const id =
-    Number(context.params.id);
+  try {
 
-  await prisma.appointment.delete({
-    where: { id },
-  });
+    await prisma.appointment.delete({
 
-  return NextResponse.json({
-    success: true,
-  });
+      where: {
+        id: Number(params.id),
+      },
+
+    });
+
+    return NextResponse.json({
+      success: true,
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    return NextResponse.json(
+      {
+        error:
+          "Fehler beim Löschen",
+      },
+      {
+        status: 500,
+      }
+    );
+
+  }
 
 }

@@ -1,4 +1,5 @@
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
+import { resend } from "@/lib/resend";
 import { NextResponse } from "next/server";
 
 // GET
@@ -14,42 +15,100 @@ export async function GET() {
 }
 
 // POST
-export async function POST(req: Request) {
+export async function POST(
+  req: Request
+) {
 
-  const body = await req.json();
+  try {
 
-  const appointment =
-    await prisma.appointment.create({
+    const body =
+      await req.json();
 
-      data: {
+    // TERMIN SPEICHERN
+    const appointment =
+      await prisma.appointment.create({
 
-        customerName:
-          body.customerName,
+        data: {
 
-        customerPhone:
-          body.customerPhone,
+          customerName:
+            body.customerName,
 
-        customerEmail:
-          body.customerEmail,
+          customerPhone:
+            body.customerPhone,
 
-        employee:
-          body.employee,
+          customerEmail:
+            body.customerEmail,
 
-        service:
-          body.service,
+          employee:
+            body.employee,
 
-        date:
-          body.date,
+          service:
+            body.service,
 
-        time:
-          body.time,
+          date:
+            body.date,
 
-      },
+          time:
+            body.time,
+
+        },
+
+      });
+
+    // EMAIL SENDEN
+    await resend.emails.send({
+
+      from:
+        "onboarding@resend.dev",
+
+      to:
+        "oguzhan.kurt@outlook.at",
+
+      subject:
+        "Terminbestätigung",
+
+      html: `
+
+        <h1>
+          Termin bestätigt ✅
+        </h1>
+
+        <p>
+          Hallo ${body.customerName}
+        </p>
+
+        <p>
+          Datum:
+          ${body.date}
+        </p>
+
+        <p>
+          Uhrzeit:
+          ${body.time}
+        </p>
+
+      `,
 
     });
 
-  return NextResponse.json(
-    appointment
-  );
+    return NextResponse.json(
+      appointment
+    );
+
+  } catch (error) {
+
+    console.log(error);
+
+    return NextResponse.json(
+      {
+        error:
+          "Fehler",
+      },
+      {
+        status: 500,
+      }
+    );
+
+  }
 
 }

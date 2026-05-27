@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { resend } from "@/lib/resend";
 import { NextResponse } from "next/server";
 
+import { createEvent } from "ics";
+
 // GET
 export async function GET() {
 
@@ -55,31 +57,61 @@ export async function POST(
 
       });
 
-    // GOOGLE KALENDER LINK
-    const formattedDate =
-      body.date.replaceAll(
-        "-",
-        ""
+    // DATUM SPLITTEN
+    const [year, month, day] =
+      body.date
+        .split("-")
+        .map(Number);
+
+    const [hour, minute] =
+      body.time
+        .split(":")
+        .map(Number);
+
+    // ICS EVENT ERSTELLEN
+    const event =
+      createEvent({
+
+        title:
+          "Barber Termin",
+
+        description:
+          `${body.service} bei ${body.employee}`,
+
+        start: [
+          year,
+          month,
+          day,
+          hour,
+          minute,
+        ],
+
+        duration: {
+          hours: 1,
+        },
+
+        status:
+          "CONFIRMED",
+
+        organizer: {
+
+          name:
+            "Premium Barber Shop",
+
+          email:
+            "booking@barber.at",
+
+        },
+
+      });
+
+    if (event.error) {
+
+      console.log(
+        event.error
       );
 
-    const startDate =
-      `${formattedDate}T${body.time
-        .replace(":", "")}00`;
-
-    const endHour =
-      Number(
-        body.time.split(":")[0]
-      ) + 1;
-
-    const endDate =
-      `${formattedDate}T${String(
-        endHour
-      ).padStart(2, "0")}${body.time
-        .split(":")[1]}00`;
-
-    const calendarLink =
-
-      `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Barber+Termin&dates=${startDate}/${endDate}&details=Premium+Barber+Shop+-+${body.service}+bei+${body.employee}`;
+    }
 
     // EMAIL SENDEN
     await resend.emails.send({
@@ -133,28 +165,32 @@ export async function POST(
 
           <hr />
 
-          <a
-            href="${calendarLink}"
-            style="
-              background:black;
-              color:white;
-              padding:12px 20px;
-              border-radius:12px;
-              text-decoration:none;
-              display:inline-block;
-              margin-top:20px;
-            "
-          >
-            Zum Kalender hinzufügen
-          </a>
-
-          <p style="margin-top:20px;">
-            Stornierungen sind nur telefonisch möglich.
+          <p>
+            Öffne den Anhang,
+            um den Termin direkt
+            in deinen Kalender
+            einzutragen 📅
           </p>
 
         </div>
 
       `,
+
+      attachments: [
+
+        {
+
+          filename:
+            "barber-termin.ics",
+
+          content:
+            Buffer.from(
+              event.value || ""
+            ).toString("base64"),
+
+        },
+
+      ],
 
     });
 

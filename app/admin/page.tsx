@@ -56,6 +56,50 @@ export default function AdminPage() {
 
   // Termin löschen
   const deleteAppointment =
+  async (id: number) => {
+
+    const confirmed =
+      confirm(
+        "Willst du diesen Termin wirklich löschen?"
+      );
+
+    if (!confirmed) {
+
+      return;
+
+    }
+
+    try {
+
+      const response =
+        await fetch(
+          `/api/appointments/${id}`,
+          {
+            method: "DELETE",
+          }
+        );
+
+      if (!response.ok) {
+
+        throw new Error(
+          "Löschen fehlgeschlagen"
+        );
+
+      }
+
+      fetchAppointments();
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert(
+        "Termin konnte nicht gelöscht werden"
+      );
+
+    }
+
+  };
     async (id: number) => {
 
       try {

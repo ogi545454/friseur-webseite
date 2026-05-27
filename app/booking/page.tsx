@@ -153,91 +153,101 @@ export default function BookingPage() {
   // Termin speichern
   const handleBooking = async () => {
 
-    if (
-      !selectedService ||
-      !selectedEmployee ||
-      !selectedDate ||
-      !selectedTime ||
-      !customerName ||
-      !customerPhone ||
-      !customerEmail
-    ) {
+  if (
+    !selectedService ||
+    !selectedEmployee ||
+    !selectedDate ||
+    !selectedTime ||
+    !customerName ||
+    !customerPhone ||
+    !customerEmail
+  ) {
 
-      alert("Bitte alles ausfüllen");
+    alert("Bitte alles ausfüllen");
 
-      return;
+    return;
 
-    }
+  }
 
-    try {
+  const confirmBooking =
+    window.confirm(
+      "Bist du sicher, dass du den Termin buchen möchtest?\n\nStornierungen sind nur telefonisch möglich."
+    );
 
-      const response =
-        await fetch(
-          "/api/appointments",
-          {
+  if (!confirmBooking) {
 
-            method: "POST",
+    return;
 
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
+  }
 
-            body: JSON.stringify({
+  try {
 
-              customerName,
-              customerPhone,
-              customerEmail,
+    const response =
+      await fetch(
+        "/api/appointments",
+        {
 
-              employee:
-                selectedEmployee,
+          method: "POST",
 
-              service:
-                selectedService,
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
 
-              date:
-                selectedDate,
+          body: JSON.stringify({
 
-              time:
-                selectedTime,
+            customerName,
+            customerPhone,
+            customerEmail,
 
-            }),
+            employee:
+              selectedEmployee,
 
-          }
-        );
+            service:
+              selectedService,
 
-      if (!response.ok) {
+            date:
+              selectedDate,
 
-        throw new Error(
-          "Fehler beim Speichern"
-        );
+            time:
+              selectedTime,
 
-      }
+          }),
 
-      // Termine neu laden
-      const updatedResponse =
-        await fetch(
-          "/api/appointments"
-        );
-
-      const updatedData =
-        await updatedResponse.json();
-
-      setBookedAppointments(
-        updatedData
+        }
       );
 
-      setConfirmed(true);
+    if (!response.ok) {
 
-    } catch (error) {
-
-      alert(
-        "Termin konnte nicht gespeichert werden"
+      throw new Error(
+        "Fehler beim Speichern"
       );
 
     }
 
-  };
+    const updatedResponse =
+      await fetch(
+        "/api/appointments"
+      );
+
+    const updatedData =
+      await updatedResponse.json();
+
+    setBookedAppointments(
+      updatedData
+    );
+
+    setConfirmed(true);
+
+  } catch (error) {
+
+    alert(
+      "Termin konnte nicht gespeichert werden"
+    );
+
+  }
+
+};
 
   return (
     <main className="min-h-screen bg-black text-white p-10">

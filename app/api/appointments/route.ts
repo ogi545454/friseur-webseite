@@ -62,7 +62,7 @@ export async function POST(
         "onboarding@resend.dev",
 
       to:
-        "oguzhan.kurt@outlook.at",
+         body.customerEmail,
 
       subject:
         "Terminbestätigung",

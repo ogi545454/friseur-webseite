@@ -55,6 +55,32 @@ export async function POST(
 
       });
 
+    // GOOGLE KALENDER LINK
+    const formattedDate =
+      body.date.replaceAll(
+        "-",
+        ""
+      );
+
+    const startDate =
+      `${formattedDate}T${body.time
+        .replace(":", "")}00`;
+
+    const endHour =
+      Number(
+        body.time.split(":")[0]
+      ) + 1;
+
+    const endDate =
+      `${formattedDate}T${String(
+        endHour
+      ).padStart(2, "0")}${body.time
+        .split(":")[1]}00`;
+
+    const calendarLink =
+
+      `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Barber+Termin&dates=${startDate}/${endDate}&details=Premium+Barber+Shop+-+${body.service}+bei+${body.employee}`;
+
     // EMAIL SENDEN
     await resend.emails.send({
 
@@ -62,30 +88,71 @@ export async function POST(
         "onboarding@resend.dev",
 
       to:
-         body.customerEmail,
+        body.customerEmail,
 
       subject:
         "Terminbestätigung",
 
       html: `
 
-        <h1>
-          Termin bestätigt ✅
-        </h1>
+        <div style="font-family: Arial; padding: 20px;">
 
-        <p>
-          Hallo ${body.customerName}
-        </p>
+          <h1>
+            Termin bestätigt ✅
+          </h1>
 
-        <p>
-          Datum:
-          ${body.date}
-        </p>
+          <p>
+            Hallo ${body.customerName},
+          </p>
 
-        <p>
-          Uhrzeit:
-          ${body.time}
-        </p>
+          <p>
+            dein Termin wurde erfolgreich gebucht.
+          </p>
+
+          <hr />
+
+          <p>
+            <strong>Datum:</strong>
+            ${body.date}
+          </p>
+
+          <p>
+            <strong>Uhrzeit:</strong>
+            ${body.time}
+          </p>
+
+          <p>
+            <strong>Mitarbeiter:</strong>
+            ${body.employee}
+          </p>
+
+          <p>
+            <strong>Service:</strong>
+            ${body.service}
+          </p>
+
+          <hr />
+
+          <a
+            href="${calendarLink}"
+            style="
+              background:black;
+              color:white;
+              padding:12px 20px;
+              border-radius:12px;
+              text-decoration:none;
+              display:inline-block;
+              margin-top:20px;
+            "
+          >
+            Zum Kalender hinzufügen
+          </a>
+
+          <p style="margin-top:20px;">
+            Stornierungen sind nur telefonisch möglich.
+          </p>
+
+        </div>
 
       `,
 
